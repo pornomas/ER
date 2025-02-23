@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ER (EasyResume)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            overflow: hidden; /* Убираем прокрутку */
+        }
+
+        /* Левый блок (логотип и QR-код) */
+        .left-block {
+            flex: 0 0 25%; /* Занимает 25% ширины */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            background: linear-gradient(to bottom, #c0c0c0, #808080); /* Более темный градиентный фон */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            width: 150px; /* Размер логотипа */
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .left-block .qr-code {
+            text-align: center;
+            margin-top: auto; /* Опускаем QR-код почти к границе */
+            margin-bottom: 20px; /* Отступ от нижней границы */
+        }
+
+        .left-block .qr-code img {
+            width: 150px;
+            height: auto;
+        }
+
+        .left-block .qr-label {
+            font-size: 18px;
+            margin-top: 10px;
+            color: #000000;
+        }
+
+        /* Правый блок (контент) */
+        .right-block {
+            flex: 0 0 75%; /* Занимает 75% ширины */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background: linear-gradient(to bottom, #f0f0f0, #c0c0c0); /* Градиентный фон */
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative; /* Для позиционирования модальных окон */
+        }
+
+        /* Кнопки сверху */
+        .top-buttons {
+            display: flex;
+            gap: 20px; /* Расстояние между кнопками */
+            margin-bottom: 40px;
+        }
+
+        .top-buttons button {
+            padding: 10px 20px;
+            font-size: 18px;
+            color: #000000;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .top-buttons button:hover {
+            color: #555555;
+        }
+
+        h1 {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #000000;
+            text-align: center;
+        }
+
+        .text-column {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            border: 3px solid #000000; /* Граница */
+            border-radius: 50px; /* Закруглённые углы */
+            background-color: rgba(255, 255, 255, 0.8); /* Фон внутри рамки */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Тень для объёма */
+        }
+
+        .text-column p {
+            font-size: 20px;
+            line-height: 1.5;
+            color: #000000;
+            margin: 0;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: rgb(63, 63, 63);
+            background: radial-gradient(
+                circle,
+                rgba(200, 200, 200, 1) 0%,
+                rgba(63, 63, 63, 1) 100%
+            );
+            color: black;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        /* Стили для модальных окон */
+        .modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0); /* Начальное состояние: уменьшено */
+            width: 50%; /* Занимает правую часть правого блока */
+            height: 80%; /* Высота модального окна */
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0; /* Начальное состояние: прозрачно */
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+
+        .modal.active {
+            transform: translate(-50%, -50%) scale(1); /* Конечное состояние: нормальный размер */
+            opacity: 1; /* Конечное состояние: непрозрачно */
+        }
+
+        .modal-content {
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <!-- Левый блок (логотип и QR-код) -->
+    <div class="left-block">
+        <img src="15.png" alt="Логотип" class="logo"> <!-- Замените на ваш логотип -->
+        <div class="qr-code">
+            <img src="4qr.png" alt="QR-код"> <!-- Замените на ваш QR-код -->
+            <div class="qr-label">QR - бот</div>
+        </div>
+    </div>
+
+    <!-- Правый блок (контент) -->
+    <div class="right-block">
+        <!-- Кнопки сверху -->
+        <div class="top-buttons">
+            <button id="contactButton">Связь</button>
+            <button id="developersButton">Разработчики</button>
+            <button id="historyButton">История проекта</button>
+        </div>
+
+        <!-- Название -->
+        <h1>ER (EasyResume)</h1>
+        <!-- Текст с границами -->
+        <div class="text-column">
+            <p>
+                ER (EasyResume) - это проект, который поможет вам создать правильное и понятное резюме.
+                <p>Наше резюме выделит вас среди других кандидатов. Наш инструмент прост в использовании и доступен для всех.</p>
+            </p>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <div class="footer">
+        <div>© 2025 ER (EasyResume). Все права защищены.</div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="developersModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="closeDevelopersModal">&times;</span>
+            <h2>Разработчики</h2>
+            <p>Информация о разработчиках проекта ER (EasyResume).</p>
+            <p> p0rnomas - backend (fullstak)разработчик</p>
+            <p> фил - backend разработчик</p>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="closeHistoryModal">&times;</span>
+            <h2>История проекта</h2>
+            <p>☹️☹️☹️.</p>
+        </div>
+    </div>
+
+    <!-- Оверлей для модальных окон -->
+    <div id="overlay" class="overlay"></div>
+
+    <script>
+        // Функция для открытия модального окна
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const overlay = document.getElementById('overlay');
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+            setTimeout(() => modal.classList.add('active'), 10); // Задержка для анимации
+        }
+
+        // Функция для закрытия модального окна
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const overlay = document.getElementById('overlay');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                overlay.style.display = 'none';
+            }, 500); // Задержка для анимации
+        }
+        // Обработчик для кнопки "Связь"
+        document.getElementById('contactButton').addEventListener('click', function() {
+            window.location.href = "https://t.me/p0rnomas"; // Замените на ссылку на ваш Telegram-чат
+        });
+
+        // Обработчики для кнопки "Разработчики"
+        document.getElementById('developersButton').addEventListener('click', function() {
+            openModal('developersModal');
+        });
+
+        document.getElementById('closeDevelopersModal').addEventListener('click', function() {
+            closeModal('developersModal');
+        });
+
+        // Обработчики для кнопки "История проекта"
+        document.getElementById('historyButton').addEventListener('click', function() {
+            openModal('historyModal');
+        });
+
+        document.getElementById('closeHistoryModal').addEventListener('click', function() {
+            closeModal('historyModal');
+        });
+
+        // Закрытие модальных окон при клике на оверлей
+        document.getElementById('overlay').addEventListener('click', function() {
+            closeModal('developersModal');
+            closeModal('historyModal');
+        });
+    </script>
+</body>
+</html>
